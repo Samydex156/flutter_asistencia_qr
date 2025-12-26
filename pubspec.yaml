@@ -1,0 +1,36 @@
+name: flutter_asistencias_qr
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: ^2.0.0
+  mobile_scanner: ^5.0.0
+  qr_flutter: ^4.1.0
+  flutter_riverpod: ^2.4.9
+  cupertino_icons: ^1.0.8
+  intl: ^0.20.1
+  csv: ^6.0.0
+  path_provider: ^2.1.2
+  share_plus: ^10.0.0
+  audioplayers: ^6.0.0
+  flutter_dotenv: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/sounds/
+    - .env
+
+
