@@ -1,29 +1,51 @@
 // lib/models/reporte_asistencia.dart
 class ReporteAsistencia {
   final DateTime fechaHora;
-  final String nombreEstudiante;
-  final String clase;
-  final String estado; // Asistencia, Retraso, Falta
+  final String nombreCompleto; // Nombre + Apellido
+  final String nombreCurso; // Nuevo campo
+  final String estado; // Asistencia, Retraso
+  final bool pagoAlDia; // Nuevo campo vital
 
   ReporteAsistencia({
     required this.fechaHora,
-    required this.nombreEstudiante,
-    required this.clase,
+    required this.nombreCompleto,
+    required this.nombreCurso,
     required this.estado,
+    required this.pagoAlDia,
   });
 
-  // Constructor que extrae datos de la respuesta unida de Supabase
   factory ReporteAsistencia.fromMap(Map<String, dynamic> map) {
-    // Supabase devuelve los datos del estudiante anidados bajo 'estudiantes'
-    // Usamos cast seguro por si la relación viene nula (aunque no debería con FK)
-    final estudianteData = (map['estudiantes'] as Map<String, dynamic>?) ?? {};
+    // Función auxiliar para extraer un mapa de una respuesta que podría ser Lista o Mapa
+    Map<String, dynamic> extraerMapa(dynamic data) {
+      if (data == null) {
+        return {};
+      }
+      if (data is List && data.isNotEmpty) {
+        return data.first as Map<String, dynamic>;
+      }
+      if (data is Map) {
+        return data as Map<String, dynamic>;
+      }
+      return {};
+    }
+
+    final estudiante = extraerMapa(map['estudiantes']);
+    final curso = extraerMapa(map['cursos']);
+
+    // Extraer valores con seguridad total
+    final horaStr = map['hora_entrada']?.toString();
+    final fecha = (horaStr != null)
+        ? DateTime.parse(horaStr).toLocal()
+        : DateTime.now();
 
     return ReporteAsistencia(
-      fechaHora: DateTime.parse(map['hora_entrada'] as String).toLocal(),
-      estado: map['estado'] as String,
-      // Si no hay datos de estudiante, usamos valores por defecto
-      nombreEstudiante: estudianteData['nombre'] ?? 'Desconocido',
-      clase: estudianteData['clase'] ?? 'N/A',
+      fechaHora: fecha,
+      estado: map['estado']?.toString() ?? 'N/A',
+      pagoAlDia: map['pago_al_dia'] == true, // Seguro contra nulls
+      nombreCurso: curso['nombre']?.toString() ?? 'Sin Curso',
+      nombreCompleto:
+          "${estudiante['nombre'] ?? 'Estudiante'} ${estudiante['apellido_paterno'] ?? ''}"
+              .trim(),
     );
   }
 }
